@@ -1,7 +1,6 @@
 {
   "name": "git-metrics-app",
   "version": "1.0.0",
-  "description": "A Vue.js project",
   "author": "Vincent Brunet <vincent.brunet@epitech.eu>",
   "private": true,
   "scripts": {
@@ -12,11 +11,14 @@
     "stylize": "eslint --fix .js,.vue src"
   },
   "dependencies": {
-    "vue": "^2.5.2",
-    "vue-router": "^3.0.1",
+    "axios": "^0.18.0",
     "bootstrap": "^4.0.0-beta.2",
     "bootstrap-vue": "latest",
-    "popper.js": "^1.12.9"
+    "chart.js": "^2.7.3",
+    "lodash": "^4.17.11",
+    "popper.js": "^1.12.9",
+    "vue": "^2.5.2",
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
