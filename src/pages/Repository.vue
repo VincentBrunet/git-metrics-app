@@ -29,11 +29,11 @@ vue.computed("charts", function () {
   var charts = [];
 
   var frames = [
-    ["All years", "year", "{{time_year}}", "year"],
-    ["All quarters", "quarter", "{{time_quarter}}", "quarter"],
-    ["All months", "month", "{{time_month}}", "month"],
-    ["All weeks", "week", "{{time_week}}", "week"],
-    ["All days", "day", "{{time_day}}", "day"],
+    ["All years", "year", "{{git_commit_time_year}}", "year"],
+    ["All quarters", "quarter", "{{git_commit_time_quarter}}", "quarter"],
+    ["All months", "month", "{{git_commit_time_month}}", "month"],
+    ["All weeks", "week", "{{git_commit_time_week}}", "week"],
+    ["All days", "day", "{{git_commit_time_day}}", "day"],
   ];
 
   for (var i = 0; i < frames.length; i++) {
@@ -43,86 +43,69 @@ vue.computed("charts", function () {
       name: frame[0],
       scale: frame[3],
       points: [
-        ['commit/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timeframe': frame[1]}],
-        ['commit/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timeframe': frame[1], 'git_author_ids': this.authors}],
+        ['change/total', {'git_repository_ids': [this.id], 'git_file_paths': "*.cs", 'timezone': this.tz, 'timeframe': frame[1]}],
+        ['change/total', {'git_repository_ids': [this.id], 'git_file_paths': "*.cs", 'timezone': this.tz, 'timeframe': frame[1], 'git_author_ids': this.authors}],
       ],
       xkey: frame[2],
-      ykey: "{{count}}",
+      ykey: "{{value}}",
     });
   }
-
-  for (var i = 0; i < frames.length; i++) {
-    var frame = frames[i];
-    charts.push({
-      type: "history",
-      name: frame[0] + " 2019 ONLY",
-      scale: frame[3],
-      points: [
-        ['commit/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timeframe': frame[1], "timelimits": this.tl}],
-        ['commit/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timeframe': frame[1], "timelimits": this.tl, 'git_author_ids': this.authors}],
-      ],
-      xkey: frame[2],
-      ykey: "{{count}}",
-      limits: this.tl,
-    });
-  }
-
   var chunks = [
-    ["Time of the week", ["dow", "hod(6)"], "{{time_dow}} {{time_hod(6)}}:00", function () {
+    ["Time of the week", ["dow", "hod(6)"], "{{git_commit_time_dow}} {{git_commit_time_hod(6)}}:00", function () {
       var values = [];
       for (var i = 0; i < 7; i++) {
         for (var j = 0; j < 24/6; j++) {
-          values.push({time_dow: i, "time_hod(6)": j*6});
+          values.push({git_commit_time_dow: i, "git_commit_time_hod(6)": j*6});
         }
       }
       return values;
     }()],
-    ["Days of the week", ["dow"], "{{time_dow}}", function () {
+    ["Days of the week", ["dow"], "{{git_commit_time_dow}}", function () {
       var values = [];
       for (var i = 0; i < 7; i++) {
-        values.push({time_dow: i});
+        values.push({git_commit_time_dow: i});
       }
       return values;
     }()],
-    ["Hours of day", ["hod"], "{{time_hod}}:00", function () {
+    ["Hours of day", ["hod"], "{{git_commit_time_hod}}:00", function () {
       var values = [];
       for (var i = 0; i < 24; i++) {
-        values.push({time_hod: i});
+        values.push({git_commit_time_hod: i});
       }
       return values;
     }()],
-    ["Days of month", ["dom"], "Day {{time_dom}}", function () {
+    ["Days of month", ["dom"], "Day {{git_commit_time_dom}}", function () {
       var values = [];
       for (var i = 1; i <= 31; i++) {
-        values.push({time_dom: i});
+        values.push({git_commit_time_dom: i});
       }
       return values;
     }()],
-    ["Days of year", ["doy"], "Day {{time_doy}}", function () {
+    ["Days of year", ["doy"], "Day {{git_commit_time_doy}}", function () {
       var values = [];
       for (var i = 1; i <= 366; i++) {
-        values.push({time_doy: i});
+        values.push({git_commit_time_doy: i});
       }
       return values;
     }()],
-    ["Weeks of year", ["woy"], "Week {{time_woy}}", function () {
+    ["Weeks of year", ["woy"], "Week {{git_commit_time_woy}}", function () {
       var values = [];
       for (var i = 1; i <= 53; i++) {
-        values.push({time_woy: i});
+        values.push({git_commit_time_woy: i});
       }
       return values;
     }()],
-    ["Months of year", ["moy"], "{{time_moy}}", function () {
+    ["Months of year", ["moy"], "{{git_commit_time_moy}}", function () {
       var values = [];
       for (var i = 1; i <= 12; i++) {
-        values.push({time_moy: i});
+        values.push({git_commit_time_moy: i});
       }
       return values;
     }()],
-    ["Quarters of year", ["qoy"], "{{time_qoy}}", function () {
+    ["Quarters of year", ["qoy"], "{{git_commit_time_qoy}}", function () {
       var values = [];
       for (var i = 1; i <= 4; i++) {
-        values.push({time_qoy: i});
+        values.push({git_commit_time_qoy: i});
       }
       return values;
     }()],
@@ -134,11 +117,11 @@ vue.computed("charts", function () {
       name: chunk[0],
       values: chunk[3],
       points: [
-        ['commit/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timechunks': chunk[1]}],
-        ['commit/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timechunks': chunk[1], 'git_author_ids': this.authors}],
+        ['change/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timechunks': chunk[1]}],
+        ['change/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timechunks': chunk[1], 'git_author_ids': this.authors}],
       ],
       xkey: chunk[2],
-      ykey: "{{count}}",
+      ykey: "{{value}}",
     });
   }
 
