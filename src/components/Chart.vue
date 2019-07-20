@@ -36,6 +36,7 @@ vue.prop("history_colors");
 vue.prop("history_points");
 vue.prop("history_xkey");
 vue.prop("history_ykey");
+vue.prop("history_limits");
 
 // Init
 vue.data("chart", null);
@@ -66,6 +67,7 @@ vue.when(
     "history_points",
     "history_xkey",
     "history_ykey",
+    "history_limits",
   ],
   async function () {
     this.render();
@@ -194,6 +196,9 @@ vue.method("render_history", async function () {
       borderWidth: 1,
     });
   }
+  // Time limits
+  var min = ((this.history_limits || {}).min) || ((this.history_limits || [])[0]);
+  var max = ((this.history_limits || {}).max) || ((this.history_limits || [])[1]);
   // Render
   var chart = {
     type: "bar",
@@ -213,6 +218,8 @@ vue.method("render_history", async function () {
           offset: true,
           time: {
             unit: this.history_scale,
+            min: min,
+            max: max,
           },
           ticks: {
             autoSkip: true,
