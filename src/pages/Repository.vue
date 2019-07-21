@@ -1,5 +1,6 @@
 <script>
 // Utils
+import Api from "@/core/Api";
 import Component from "@/core/Component";
 // Subcomponents
 import Chart from "@/components/Chart";
@@ -15,42 +16,149 @@ vue.computed("tz", function () {
   return 'America/Los_Angeles';
 })
 
-vue.computed("tl", function () {
+vue.computed("tl2019", function () {
   return ["2019-01-01", "2020-01-01"];
 });
-
-vue.computed("authors", function () {
-  return [2, 17, 21, 38, 39, 116];
+vue.computed("tl2018", function () {
+  return ["2018-01-01", "2019-01-01"];
 });
-//vue.computed("authors", [26, 30, 31, 35]);
 
-vue.computed("charts", function () {
+// Data update
+vue.data("charts", []);
+vue.when(
+  [
+    // Base
+    "$mounted",
+    "id",
+    "tz",
+  ],
+  async function () {
+    this.render();
+  }
+);
+
+vue.method("render", async function () {
 
   var charts = [];
+
+  var group_list = (await Api.get("group/list", {"git_repository_id": this.id, "orders": ["ui_group_name"]})).data.results;
+  var group_list_ids = [];
+  var group_list_names = [];
+  var group_map = {};
+  for (var i = 0; i < group_list.length; i++) {
+    var group_item = group_list[i];
+    group_map[group_item.name] = group_item.id;
+    group_list_ids.push(group_item.id);
+    group_list_names.push(group_item.name);
+  }
+
+  var chart = {
+    type: "categories",
+    name: "People",
+    titles: [],
+    values: [],
+    points: [],
+    xkey: "Peeps",
+    ykey: "{{value}}",
+  };
+  for (var j = 0; j < group_list.length; j++) {
+    var group = group_list[j];
+    chart.titles.push(group.name);
+    chart.points.push(["change/total", {
+      "git_repository_id": this.id,
+      "git_file_path": "Assets/Scripts/Nanome/*.cs",
+      "ui_group_id": group.id,
+      "orders": ["ui_group_name"],
+      "timelimits": this.tl2019,
+    }]);
+  }
+  charts.push(chart);
+
+  charts.push({
+    type: "categories",
+    name: "Peops",
+    titles: ["2018", "2019"],
+    points: [
+      ["change/total", {
+        "git_repository_id": this.id,
+        "git_file_path": "Assets/Scripts/Nanome/*.cs",
+        "orders": ["ui_group_name"],
+        "timelimits": this.tl2018,
+      }],
+      ["change/total", {
+        "git_repository_id": this.id,
+        "git_file_path": "Assets/Scripts/Nanome/*.cs",
+        "orders": ["ui_group_name"],
+        "timelimits": this.tl2019,
+      }]
+    ],
+    values: [],
+    xkey: "{{ui_group_name}}",
+    ykey: "{{value}}",
+  });
+
+  charts.push({
+    type: "donut",
+    name: "Peops",
+    titles: ["all", "2018", "2019"],
+    points: [
+      ["change/total", {
+        "git_repository_id": this.id,
+        "git_file_path": "Assets/Scripts/Nanome/*.cs",
+        "orders": ["ui_group_name"],
+      }],
+      ["change/total", {
+        "git_repository_id": this.id,
+        "git_file_path": "Assets/Scripts/Nanome/*.cs",
+        "orders": ["ui_group_name"],
+        "timelimits": this.tl2018,
+      }],
+      ["change/total", {
+        "git_repository_id": this.id,
+        "git_file_path": "Assets/Scripts/Nanome/*.cs",
+        "orders": ["ui_group_name"],
+        "timelimits": this.tl2019,
+      }],
+    ],
+    values: [],
+    xkey: "{{ui_group_name}}",
+    ykey: "{{value}}",
+  });
 
   var frames = [
     ["All years", "year", "{{git_commit_time_year}}", "year"],
     ["All quarters", "quarter", "{{git_commit_time_quarter}}", "quarter"],
     ["All months", "month", "{{git_commit_time_month}}", "month"],
     ["All weeks", "week", "{{git_commit_time_week}}", "week"],
-    ["All days", "day", "{{git_commit_time_day}}", "day"],
+    //["All days", "day", "{{git_commit_time_day}}", "day"],
   ];
 
   for (var i = 0; i < frames.length; i++) {
     var frame = frames[i];
-    charts.push({
+    var chart = {
       type: "history",
       name: frame[0],
       scale: frame[3],
-      points: [
-        ['change/total', {'git_repository_ids': [this.id], 'git_file_paths': "*.cs", 'timezone': this.tz, 'timeframe': frame[1]}],
-        ['change/total', {'git_repository_ids': [this.id], 'git_file_paths': "*.cs", 'timezone': this.tz, 'timeframe': frame[1], 'git_author_ids': this.authors}],
-      ],
+      titles: [],
+      points: [],
       xkey: frame[2],
       ykey: "{{value}}",
-    });
+    };
+    for (var j = 0; j < group_list.length; j++) {
+      var group = group_list[j];
+      chart.titles.push(group.name);
+      chart.points.push(["change/total", {
+        'git_repository_id': this.id,
+        'git_file_path': "Assets/Scripts/Nanome/*.cs",
+        'ui_group_id': group.id,
+        'timezone': this.tz,
+        'timeframe': frame[1],
+      }]);
+    }
+    charts.push(chart);
   }
   var chunks = [
+    /*
     ["Time of the week", ["dow", "hod(6)"], "{{git_commit_time_dow}} {{git_commit_time_hod(6)}}:00", function () {
       var values = [];
       for (var i = 0; i < 7; i++) {
@@ -60,6 +168,7 @@ vue.computed("charts", function () {
       }
       return values;
     }()],
+    */
     ["Days of the week", ["dow"], "{{git_commit_time_dow}}", function () {
       var values = [];
       for (var i = 0; i < 7; i++) {
@@ -74,6 +183,7 @@ vue.computed("charts", function () {
       }
       return values;
     }()],
+    /*
     ["Days of month", ["dom"], "Day {{git_commit_time_dom}}", function () {
       var values = [];
       for (var i = 1; i <= 31; i++) {
@@ -109,23 +219,33 @@ vue.computed("charts", function () {
       }
       return values;
     }()],
+    */
   ];
   for (var i = 0; i < chunks.length; i++) {
     var chunk = chunks[i];
-    charts.push({
+    var chart = {
       type: "categories",
       name: chunk[0],
       values: chunk[3],
-      points: [
-        ['change/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timechunks': chunk[1]}],
-        ['change/count', {'git_repository_ids': [this.id], 'timezone': this.tz, 'timechunks': chunk[1], 'git_author_ids': this.authors}],
-      ],
+      titles: [],
+      points: [],
       xkey: chunk[2],
       ykey: "{{value}}",
-    });
+    };
+    for (var j = 0; j < group_list.length; j++) {
+      var group = group_list[j];
+      chart.titles.push(group.name);
+      chart.points.push(['commit/changes', {
+        'git_repository_id': this.id,
+        'ui_group_id': group.id,
+        'timezone': this.tz,
+        'timechunks': chunk[1],
+      }]);
+    }
+    charts.push(chart);
   }
 
-  return charts;
+  this.charts = charts;
 
 });
 
@@ -148,32 +268,24 @@ export default vue.export();
       :type="chart.type"
       :name="chart.name"
 
-      :categories_names="[
-        'Authors: All',
-        'Authors: ' + JSON.stringify(authors),
-      ]"
-      :categories_colors="[
-        '#eeeeee',
-        '#9999ff',
-      ]"
+      :categories_names="chart.titles"
+      :categories_points="chart.points"
       :categories_xkey="chart.xkey"
       :categories_ykey="chart.ykey"
       :categories_values="chart.values"
-      :categories_points="chart.points"
 
-      :history_names="[
-        'Authors: All',
-        'Authors: ' + JSON.stringify(authors),
-      ]"
-      :history_colors="[
-        '#eeeeee',
-        '#9999ff',
-      ]"
-      :history_scale="chart.scale"
+      :history_names="chart.titles"
       :history_points="chart.points"
       :history_xkey="chart.xkey"
       :history_ykey="chart.ykey"
+      :history_scale="chart.scale"
       :history_limits="chart.limits"
+
+      :donut_names="chart.titles"
+      :donut_points="chart.points"
+      :donut_xkey="chart.xkey"
+      :donut_ykey="chart.ykey"
+      :donut_values="chart.values"
 
     >
     </chart>
