@@ -41,7 +41,7 @@ vue.method("render", async function () {
 
   var charts = [];
 
-  var group_list = (await Api.get("group/list", {"git_repository_id": this.id, "orders": ["ui_group_name"]})).data.results;
+  var group_list = (await Api.get("group/list", {"git_repository_id": this.id, "orders": ["git_repository_id", "ui_group_name", "ui_group_id"]})).data.results;
   var group_list_ids = [];
   var group_list_names = [];
   var group_map = {};
@@ -77,8 +77,13 @@ vue.method("render", async function () {
   charts.push({
     type: "categories",
     name: "Peops",
-    titles: ["2018", "2019"],
+    titles: ["all", "2018", "2019"],
     points: [
+      ["change/total", {
+        "git_repository_id": this.id,
+        "git_file_path": "Assets/Scripts/Nanome/*.cs",
+        "orders": ["ui_group_name"],
+      }],
       ["change/total", {
         "git_repository_id": this.id,
         "git_file_path": "Assets/Scripts/Nanome/*.cs",
