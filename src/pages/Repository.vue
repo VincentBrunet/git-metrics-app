@@ -2,10 +2,12 @@
 // Utils
 import Api from "@/core/Api";
 import Component from "@/core/Component";
-// Subcomponents
-import Chart from "@/components/Chart";
 // Start building component
 var vue = new Component("Repository");
+
+// Subcomponents
+import Chart from "@/components/Chart";
+vue.component("chart", Chart);
 
 vue.computed("id", function () {
   return this.$route.params.id;
@@ -102,7 +104,7 @@ vue.method("render", async function () {
     ykey: "{{value}}",
   });
 
-  charts.push({
+  var chart = {
     type: "donut",
     name: "Peops",
     titles: ["all", "2018", "2019"],
@@ -128,7 +130,14 @@ vue.method("render", async function () {
     values: [],
     xkey: "{{ui_group_name}}",
     ykey: "{{value}}",
-  });
+  };
+  for (var i = 0; i < group_list.length; i++) {
+    var group_item = group_list[i];
+    chart.values.push({
+      ui_group_name: group_item.name,
+    });
+  }
+  charts.push(chart);
 
   var frames = [
     ["All years", "year", "{{git_commit_time_year}}", "year"],
@@ -254,21 +263,20 @@ vue.method("render", async function () {
 
 });
 
-vue.component("chart", Chart);
-
 // Export
 export default vue.export();
 </script>
 
 <template>
-  <div class="Repository">
+  <div class="Repository container">
     Repository
     <h1>{{ id }}</h1>
     Chart:
-
-    <chart
-
+    <div class="row">
+    <div class="col col-12 col-xl-6 mb-3"
       v-for="chart in charts"
+    >
+    <chart
 
       :type="chart.type"
       :name="chart.name"
@@ -294,6 +302,8 @@ export default vue.export();
 
     >
     </chart>
+    </div>
+    </div>
 
   </div>
 </template>

@@ -4,11 +4,18 @@
   </div>
 </template>
 
+<style scoped>
+.comp {
+  position: relative;
+}
+</style>
+
 <script>
 // External depts
 import chart from "chart.js";
 // Api communication
 import Api from "@/core/Api";
+import Utils from "@/core/Utils";
 // Component builder
 import Component from "@/core/Component";
 // Start building component
@@ -184,6 +191,7 @@ vue.method("render_categories", async function () {
       },
     },
   };
+  // Done
   this.update(chart);
 });
 
@@ -228,19 +236,20 @@ vue.method("render_donut", async function () {
         values.push(undefined);
       }
       values[position] = (values[position] || 0) + parseInt(Lambdas.resolve(this.donut_ykey, point));
-      colors.push((this.donut_colors && this.donut_colors[j]) || this.color(j, 0.5));
+      colors[position] = (this.donut_colors && this.donut_colors[position]) || this.color(position, 0.5);
     }
     // Add one dataset per endpoint
     datasets.push({
       data: values,
       label: (this.donut_names && this.donut_names[i]) || "name",
       backgroundColor: colors,
+      borderColor: colors,
       borderWidth: 1,
     });
   }
   // Render
   var chart = {
-    type: "pie",
+    type: "doughnut",
     data: {
       labels: categories,
       datasets: datasets,
@@ -263,6 +272,7 @@ vue.method("render_donut", async function () {
       }
     },
   };
+  // Done
   this.update(chart);
 });
 
@@ -338,11 +348,26 @@ vue.method("render_history", async function () {
       },
     },
   };
+  // Done
   this.update(chart);
 });
 
-
 vue.method("update", async function (chart) {
+
+  chart.options.tooltips = {
+    backgroundColor: '#FFF',
+    titleFontSize: 16,
+    titleFontColor: this.color(0, 0.9),
+    bodyFontColor: '#000',
+    bodyFontSize: 14,
+    displayColors: false,
+    caretSize: 8,
+    cornerRadius: 8,
+    borderWidth: 1,
+    bodySpacing: 8,
+    borderColor: this.color(0, 0.5),
+  };
+
   if (this.chart != null) {
     this.chart.destroy();
   }
@@ -352,9 +377,3 @@ vue.method("update", async function (chart) {
 // Export
 export default vue.export();
 </script>
-
-<style scoped>
-.comp {
-  position: relative;
-}
-</style>

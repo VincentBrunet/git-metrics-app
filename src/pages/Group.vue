@@ -2,11 +2,13 @@
 // Utils
 import Api from "@/core/Api";
 import Component from "@/core/Component";
-// Subcomponents
-import Chart from "@/components/Chart";
 
 // Start building component
 var vue = new Component("Home");
+
+// Subcomponents
+import Chart from "@/components/Chart";
+vue.component("chart", Chart);
 
 vue.computed("id", function () {
   return this.$route.params.id;
@@ -75,8 +77,6 @@ vue.method("render", async function () {
 
 });
 
-vue.component("chart", Chart);
-
 // Export
 export default vue.export();
 </script>
@@ -87,34 +87,36 @@ export default vue.export();
     <h1>{{ id }}</h1>
     Charts:
 
-    <chart
+    <card>
+      <chart
 
-      v-for="chart in charts"
+        v-for="chart in charts"
 
-      :type="chart.type"
-      :name="chart.name"
+        :type="chart.type"
+        :name="chart.name"
 
-      :categories_names="chart.titles"
-      :categories_points="chart.points"
-      :categories_xkey="chart.xkey"
-      :categories_ykey="chart.ykey"
-      :categories_values="chart.values"
+        :categories_names="chart.titles"
+        :categories_points="chart.points"
+        :categories_xkey="chart.xkey"
+        :categories_ykey="chart.ykey"
+        :categories_values="chart.values"
 
-      :history_names="chart.titles"
-      :history_points="chart.points"
-      :history_xkey="chart.xkey"
-      :history_ykey="chart.ykey"
-      :history_scale="chart.scale"
-      :history_limits="chart.limits"
+        :history_names="chart.titles"
+        :history_points="chart.points"
+        :history_xkey="chart.xkey"
+        :history_ykey="chart.ykey"
+        :history_scale="chart.scale"
+        :history_limits="chart.limits"
 
-      :donut_names="chart.titles"
-      :donut_points="chart.points"
-      :donut_xkey="chart.xkey"
-      :donut_ykey="chart.ykey"
-      :donut_values="chart.values"
+        :donut_names="chart.titles"
+        :donut_points="chart.points"
+        :donut_xkey="chart.xkey"
+        :donut_ykey="chart.ykey"
+        :donut_values="chart.values"
 
-    >
-    </chart>
+      >
+      </chart>
+    </card>
 
   </div>
 </template>
