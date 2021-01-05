@@ -11,7 +11,7 @@
     "stylize": "eslint --fix .js,.vue src"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "bootstrap": "^4.0.0-beta.2",
     "bootstrap-vue": "latest",
     "chart.js": "^2.8.0",
